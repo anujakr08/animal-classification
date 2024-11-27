@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Classifier</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background: linear-gradient(to right, #6cacbe, #3376c8); 
+            color: #fff;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .upload-button {
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .upload-button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .prediction-result {
+            margin-top: 30px;
+            font-size: 1.8em;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #imageInput {
+            margin: 20px 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #preview {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Animal Classification</h1>
+        <input type="file" id="imageInput" accept="image/*" onchange="showPreview()">
+        <img id="preview" src="#" alt="Image Preview">
+        <br>
+        <button class="upload-button" onclick="predictAnimal()">Predict</button>
+        <div class="prediction-result" id="result"></div>
+    </div>
+
+    <script>
+        function showPreview() {
+            var file = document.getElementById('imageInput').files[0];
+            var preview = document.getElementById('preview');
+
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function predictAnimal() {
+            var fileInput = document.getElementById('imageInput');
+            if (fileInput.files.length === 0) {
+                alert("Please upload an image.");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = "Predicted Animal: " + data.prediction;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+</body>
+</html>
